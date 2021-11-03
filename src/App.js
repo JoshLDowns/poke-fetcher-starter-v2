@@ -9,6 +9,7 @@ const App = () => {
   const [pokeData, setPokeData] = useState(null);
   const [links, setLinks] = useState({ next: null, previous: null });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [allPokemon, setAllPokemon] = useState(null);
 
   const upperCase = (string) => {
     return string[0].toUpperCase() + string.slice(1);
@@ -29,6 +30,14 @@ const App = () => {
     setLinks({ next: data.next, previous: data.previous });
   };
 
+  const handleInitialFetch = async () => {
+    const response = await fetch(
+      "https://pokeapi.co/api/v2/pokemon?limit=1118"
+    );
+    const data = await response.json();
+    setAllPokemon(data.results.map((pokemon) => pokemon.name));
+  };
+
   const handlePagination = (event) => {
     let url = event.target.id === "next" ? links.next : links.previous;
     handleFetch(url);
@@ -37,6 +46,9 @@ const App = () => {
   useEffect(() => {
     if (!pokeData) {
       handleFetch("https://pokeapi.co/api/v2/pokemon");
+    }
+    if (!allPokemon) {
+      handleInitialFetch()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -50,6 +62,11 @@ const App = () => {
           upperCase={upperCase}
         />
       )}
+      <PokeQuery
+        allPokemon={allPokemon}
+        handleSubmit={handleModalOpen}
+        upperCase={upperCase}
+      />
       <div className="inner-wrapper">
         <button
           className="arrow-button"
